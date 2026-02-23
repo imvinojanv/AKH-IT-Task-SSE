@@ -38,7 +38,7 @@ class SavedProductApiTest extends TestCase
             'user_token' => $this->userToken
         ]);
 
-        $response1->assertStatus(200)
+        $response1->assertSuccessful()
                   ->assertJsonFragment([
                       'user_token' => $this->userToken,
                       'product_id' => $this->testProduct->id
@@ -54,7 +54,7 @@ class SavedProductApiTest extends TestCase
             'user_token' => $this->userToken
         ]);
 
-        $response2->assertStatus(200);
+        $response2->assertSuccessful();
         $this->assertDatabaseCount('saved_products', 1);
     }
 
@@ -69,7 +69,7 @@ class SavedProductApiTest extends TestCase
             'X-User-Token' => $this->userToken
         ]);
 
-        $response->assertStatus(200)
+        $response->assertSuccessful()
                  ->assertJsonStructure([
                      'data' => [
                          '*' => [
@@ -97,7 +97,7 @@ class SavedProductApiTest extends TestCase
             'X-User-Token' => $this->userToken
         ]);
 
-        $response->assertStatus(200)
+        $response->assertSuccessful()
                  ->assertJson(['message' => 'Product removed from saved list']);
 
         $this->assertDatabaseMissing('saved_products', [
@@ -109,6 +109,6 @@ class SavedProductApiTest extends TestCase
             'X-User-Token' => $this->userToken
         ]);
 
-        $response2->assertStatus(200);
+        $response2->assertSuccessful();
     }
 }

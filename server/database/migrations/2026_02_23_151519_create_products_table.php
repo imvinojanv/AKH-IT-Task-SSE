@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name')->index();
             $table->string('sku')->unique(); // unique already implies index
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->index();
             $table->decimal('sale_price', 10, 2)->nullable();
             $table->string('brand')->index();
             $table->string('category')->index();
             $table->string('colour')->index();
+            $table->boolean('in_stock')->default(true)->index();
             $table->jsonb('sizes');
-            $table->boolean('in_stock')->index();
             $table->timestamps();
         });
     }

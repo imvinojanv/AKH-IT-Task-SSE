@@ -4,22 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Http\Requests\GetProductsRequest;
+use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(GetProductsRequest $request)
     {
+        // Validation implicitly handled by Laravel FormRequest mechanism
         $query = Product::query();
 
         // 1. Search Query
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                // 'ilike' ensures case-insensitive matching for PostgreSQL
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('sku', 'ilike', "%{$search}%")
-                  ->orWhere('brand', 'ilike', "%{$search}%");
+            $operator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+            $query->where(function ($q) use ($search, $operator) {
+                $q->where('name', $operator, "%{$search}%")
+                  ->orWhere('sku', $operator, "%{$search}%")
+                  ->orWhere('brand', $operator, "%{$search}%");
             });
         }
 
@@ -78,7 +81,7 @@ class ProductController extends Controller
         $products = $query->paginate($perPage);
 
         return response()->json([
-            'data' => $products->items(),
+            'data' => ProductResource::collection($products->items()),
             'meta' => [
                 'current_page' => $products->currentPage(),
                 'last_page' => $products->lastPage(),
